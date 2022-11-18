@@ -5,7 +5,7 @@ name: "Deploy to by "
 # Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  push:
+  pull_request:
     branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -13,10 +13,10 @@ on:
     inputs:
       modulePath:
         description: "Provide the module path that includes .psd1"
-        required: false
+        required: true
       NuGetApiKey:
         description: "Provide NuGetApiKey for your profile in PSGallery."
-        required: false
+        required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -33,5 +33,5 @@ jobs:
       - id: publishpsmodule
         uses: aammirmirza/AzCostOptimization@PSGallery_v2
         with:
-          NuGetApiKey: "${{ secrets.NuGetApiKey }}"
-          modulePath: "modules_to_publish/AzCostOptimization"
+          NuGetApiKey: ${{ input.NuGetApiKey }}
+          modulePath: ${{ input.modulePath }}
