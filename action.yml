@@ -1,0 +1,19 @@
+name: Publish to PSGallery
+description: Publishes a PowerShell module to the PowerShell Gallery. By default PUBLIC.
+inputs:
+  NuGetApiKey:
+    description: The NuGet API Key for PowerShell Gallery, with permission to push this module. You can fetch this from your PSGallery profile.
+    required: true
+  modulePath:
+    description: The filesystem path to the module to publish. It is directories that contains a .psd1.
+    required: true
+outputs:
+  successfullyPublished: # id of output
+    description: Whether or not the publish command was successful
+    value: "${{ steps.publishpsmodule.outputs }}"
+runs:
+  using: "composite"
+  steps:
+    - id: publishpsmodule
+      run: ${{ github.action_path }}/Publish-Module.ps1 -NuGetApiKey ${{ inputs.NuGetApiKey }} -modulePath ${{ inputs.modulePath }}
+      shell: pwsh
