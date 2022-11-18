@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: "Deploy to ${{ inputs.NuGetApiKey }} by @${{ github.actor }}"
 
 # Controls when the action will run.
 on:
@@ -33,5 +33,5 @@ jobs:
       - id: publishpsmodule
         uses: aammirmirza/AzCostOptimization@PSGallery
         with:
-          NuGetApiKey: ${{ github.event.inputs.NuGetApiKey }}
-          modulePath: ${{ github.event.inputs.modulePath }}
+          NuGetApiKey: ${{ secrets.NuGetApiKey }}
+          modulePath: "modules_to_publish/AzCostOptimization"
