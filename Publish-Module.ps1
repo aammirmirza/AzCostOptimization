@@ -1,9 +1,9 @@
 ########################################################################################
 param(
     [parameter(Mandatory = $true)]
-    [int]$NuGetApiKey,
+    $NuGetApiKey,
     [parameter(Mandatory = $true)]
-    [int]$modulePath
+    $modulePath
 )
 
 $Modules = $null
