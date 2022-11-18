@@ -33,5 +33,5 @@ jobs:
       - id: publishpsmodule
         uses: aammirmirza/AzCostOptimization@PSGallery_v1
         with:
-          NuGetApiKey: ${{ secrets.NuGetApiKey }}
+          NuGetApiKey: "${{ secrets.NuGetApiKey }}"
           modulePath: "modules_to_publish/AzCostOptimization"
