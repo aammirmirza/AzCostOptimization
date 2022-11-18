@@ -7,10 +7,7 @@ inputs:
   modulePath:
     description: The filesystem path to the module to publish. It is directories that contains a .psd1.
     required: true
-outputs:
-  successfullyPublished: # id of output
-    description: Whether or not the publish command was successful
-    value: "${{ steps.publishpsmodule.outputs }}"
+
 runs:
   using: "composite"
   steps:
