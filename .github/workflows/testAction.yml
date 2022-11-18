@@ -14,6 +14,10 @@ on:
       modulePath:
         description: "Provide the module path that includes .psd1"
         required: true
+      NuGetApiKey:
+        description: "Provide NuGetApiKey for your profile in PSGallery."
+        required: true
+        default: ${{ secrets.NuGetApiKey }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
