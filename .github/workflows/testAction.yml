@@ -13,10 +13,10 @@ on:
     inputs:
       modulePath:
         description: "Provide the module path that includes .psd1"
-        required: true
+        required: false
       NuGetApiKey:
         description: "Provide NuGetApiKey for your profile in PSGallery."
-        required: true
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
