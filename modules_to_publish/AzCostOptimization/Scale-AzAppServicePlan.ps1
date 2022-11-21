@@ -1,6 +1,12 @@
 ﻿function Scale-AzAppServicePlan {
     param ([string] $AzureRunAsConnection, [string] $ResourceGroupName, [string] $Name, [string] $Sku, [int] $SkuInstances, [bool] $AutoScale, [string] $Start, [string] $Stop)
-    Connect-AzAccount -Identity
+    # Connect using a Managed Service Identity
+    try {
+        $AzureContext = (Connect-AzAccount -Identity).context
+    }
+    catch {
+        Write-Output 'There is no system-assigned user identity. Aborting. Setu the same or try using RunAs account automation method.';
+    }
     Write-Output ('AzureRunAsConnection: {0} ResourceGroupName: {1} Name: {2} SKU: {3} Instances: {4} AutoScale: {5} Start: {6} Stop: {7}' -F $AzureRunAsConnection, $ResourceGroupName, $Name, $Sku, $SkuInstances, $AutoScale, $Start, $Stop)
 
     # $servicePrincipalConnection = Get-AutomationConnection -Name $AzureRunAsConnection
@@ -106,7 +112,8 @@
     $comparision | ForEach-Object -Process { if ($_.SideIndicator -eq '==') {
             <# Action to perform if the condition is true #>
             Write-Output "$($_.InputObject)" | Green
-        } else {
+        }
+        else {
             <# Action when all if and elseif conditions are false #>
             Write-Output "$($_.InputObject)" | Red
 

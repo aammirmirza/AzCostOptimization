@@ -49,7 +49,6 @@ function Run-ResourceTypeAction {
     }
     catch {
         Write-Output 'There is no system-assigned user identity. Aborting. Setu the same or try using RunAs account automation method.';
-        exit
     }
 
     if ([System.String]::IsNullOrEmpty($PSPrivateMetadata.JobId.Guid)) {
@@ -130,10 +129,10 @@ function Run-ResourceTypeAction {
 
     foreach ($item in $resources) {
         # if ($item.ResourceType -ne 'Microsoft.Network/bastionHosts') {
-            if (($null -eq ($r = Get-AzResource -ResourceGroupName $item.ResourceGroupName -Name $item.ResourceName) -and ($item.ResourceType -ne 'Microsoft.Network/bastionHosts'))) {
-                Write-Error -Message ('Resource "{0}" not found [ResourceGroup: {1} ResourceType: {2} Subscription: {3}]' -F $item.ResourceName, $item.ResourceGroupName, $item.ResourceType, $itemsConnection.SubscriptionId) -ErrorAction Continue
-                continue
-            }
+        if (($null -eq ($r = Get-AzResource -ResourceGroupName $item.ResourceGroupName -Name $item.ResourceName) -and ($item.ResourceType -ne 'Microsoft.Network/bastionHosts'))) {
+            Write-Error -Message ('Resource "{0}" not found [ResourceGroup: {1} ResourceType: {2} Subscription: {3}]' -F $item.ResourceName, $item.ResourceGroupName, $item.ResourceType, $itemsConnection.SubscriptionId) -ErrorAction Continue
+            continue
+        }
         #     continue
         # }
         $itemAction = ' ' + $item.Action + ' '
