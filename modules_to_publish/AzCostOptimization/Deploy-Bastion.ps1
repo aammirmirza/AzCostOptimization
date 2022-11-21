@@ -1,6 +1,11 @@
 function Deploy-Bastion {
     param ([string] $AzureRunAsConnection, [string] $ResourceGroupName, [string] $Name, [string] $pip, [string] $vnet, [string]$sku)
-    Connect-AzAccount -Identity
+    try {
+        Connect-AzAccount -Identity
+    }
+    catch {
+        Write-Warning "Not enough autherization to 'Managed Identity' for performing operations."
+    }
     Write-Output ('AzureRunAsConnection: {0} ResourceGroupName: {1} Name: {2} PIP: {3} VNET: {4} SKU: {5}' -F $AzureRunAsConnection, $ResourceGroupName, $Name, $pip, $vnet, $SKU)
 
     # $servicePrincipalConnection = Get-AutomationConnection -Name $AzureRunAsConnection
