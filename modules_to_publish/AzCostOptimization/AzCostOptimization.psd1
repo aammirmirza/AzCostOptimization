@@ -1,6 +1,6 @@
 ﻿@{
     CompanyName     = 'Aamir Mirza Baig'
-    Copyright       = 'Copyright 2021 to current year. All rights reserved.'
+    Copyright       = 'Copyright 2022 to current year. All rights reserved.'
     RootModule      = 'AzCostOptimization.psm1'
     RequiredModules = @( )
     Description     = 'This module automates the cost savings approach for Azure Web Apps and Azure SQL DB'
