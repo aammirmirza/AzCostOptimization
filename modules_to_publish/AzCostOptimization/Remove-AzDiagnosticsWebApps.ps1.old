@@ -1,3 +1,5 @@
+$WarningPreference = 'SilentlyContinue'
+
 # Set-AzDiagnosticSetting -ResourceId "Resource01" -Enabled $False -Category AppServiceAuditLogs,AppServiceFileAuditLogs
 Function Remove-FileChangeAudit {
     Param(
@@ -9,14 +11,14 @@ Function Remove-FileChangeAudit {
     )
     # Connect using a Managed Service Identity
     try {
-        $AzureContext = (Connect-AzAccount -Identity).context
+        $AzureContext = (Connect-AzAccount -Identity -ErrorAction SilentlyContinue).context # Connect using a Managed Service Identity
     }
     catch {
         Write-Output 'There is no system-assigned user identity. Aborting. Setup the same or try using RunAs account automation method.';
     }
     Try {
         # $subscriptionId = 'e925f9e8-74d0-48a2-a05d-428ac3696c49'
-        # Set-AzContext $subscriptionId
+        Set-AzContext $subscriptionId
         # $appServiceRG = 'weu-sc93-preprd-rg' #Resource Group Name"
         # $aspName = 'weu-sc93-preprd-rg-365400-xc-basic-hp' #Name of App Service Plan
         $asp = Get-AzAppServicePlan -ResourceGroupName $appServiceRG -Name $aspName -ErrorAction Stop
