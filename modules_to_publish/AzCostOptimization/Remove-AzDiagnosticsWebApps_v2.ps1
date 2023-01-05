@@ -23,38 +23,20 @@ Function Remove-FileChangeAudit {
         # $aspName = 'weu-sc93-preprd-rg-365400-xc-basic-hp' #Name of App Service Plan
         $asp = Get-AzAppServicePlan -ResourceGroupName $appServiceRG -Name $aspName -ErrorAction Stop
         $web = Get-AzWebApp -AppServicePlan $asp -ErrorAction SilentlyContinue
-        foreach ($webApp in ($web | Where-Object { ($_.State -eq 'Running') })) {
+        Write-Output ('*' * 75)
+        Write-Host "Total Apps identified $($web.Count)"
+        # foreach ($webApp in ($web | Where-Object { ($_.State -eq 'Running') })) {
+        foreach ($webApp in $web) {
             Write-Output ('*' * 75)
             Write-Output ('App Name : {0}' -F $webApp.Name)
             Write-Output ('*' * 75)
-            $accessRestriction = ((Get-AzWebAppAccessRestrictionConfig -ResourceGroupName $appServiceRG -Name "$($webApp.Name)").MainSiteAccessRestrictions)
-            if ($accessRestriction.Count -gt 1) {
-                Write-Host "Found Access Restriction rules for $($webApp.Name). Taking backup for the same."
-                foreach ($accessRule in $accessRestriction) {
-                    if ($($accessRule.RuleName) -ne 'Deny All') {
-                        Remove-AzWebAppAccessRestrictionRule -ResourceGroupName $appServiceRG -WebAppName "$($webApp.Name)" -Name $($accessRule.RuleName)
-                        Write-Host "  Removing $($accessRule.RuleName) rule from $($webApp.Name)"
-                    }
-                }
+            try {
                 # Removal of FileChangeAudit
-                # to handle production (not slots)
-                if ($Slot -ne $true) {
-                    $config = Get-AzResource -ResourceGroupName $appServiceRG `
-                        -ResourceType 'Microsoft.Web/sites/config' `
-                        -ResourceName "$($webApp.Name)/web" `
-                        -ApiVersion 2016-08-01
-                }
-                # to handle the slots
-                if ($Slot -eq $true) {
-                    # for app slots
-                    $appServiceName = "$($webApp.Name)/staging"
-                    $config = Get-AzResource -ResourceGroupName $appServiceRG `
-                        -ResourceType 'Microsoft.Web/sites/slots' `
-                        -ResourceName "$($appServiceName)" `
-                        -ApiVersion 2016-08-01 -ErrorAction SilentlyContinue
-                }
-                Write-Host "       Current FILECHANGEAUDIT Status for the $($webApp.Name) : $($config.Properties.fileChangeAuditEnabled)"
-                $config.Properties.fileChangeAuditEnabled = 'false'
+                # to handle production (NOT Slots)
+                Write-Host "Running for Web App $($webApp.Name)"
+                $config = Get-AzResource -ResourceId "$($webApp.Id)"
+                Write-Host "[BEFORE]FILECHANGEAUDIT Status $($webApp.Name) : $($config.Properties.siteConfig.fileChangeAuditEnabled)"
+                $config.Properties.siteConfig.fileChangeAuditEnabled = 'false'
                 $config.Properties.PSObject.Properties.Remove('ReservedInstanceCount')
                 $newCategories = @()
                 ForEach ($entry in $config.Properties.azureMonitorLogCategories) {
@@ -62,16 +44,36 @@ Function Remove-FileChangeAudit {
                         $newCategories += $entry
                     }
                 }
-                $config.Properties.azureMonitorLogCategories = $newCategories
+                $config.Properties.siteConfig.azureMonitorLogCategories = $newCategories
                 $config | Set-AzResource -Force
-                # Restoring the Access Restriction rules
-                foreach ($accessRule in $restrictions) {
-                    if ($($accessRule.RuleName) -ne 'Deny All') {
-                        Add-AzWebAppAccessRestrictionRule -ResourceGroupName $appServiceRG -WebAppName "$($webApp.Name)" -Name "$($accessRule.RuleName)" -Priority "$($accessRule.Priority)" -Action "$($accessRule.Action)" -IpAddress "$($accessRule.IpAddress)"
-                        Write-Host "  Restoring $($accessRule.RuleName) rule to $($webApp.Name)"
+                Write-Host "[BEFORE]FILECHANGEAUDIT Status $($webApp.Name) : $($config.Properties.siteConfig.fileChangeAuditEnabled)"
+                # to handle the slots
+                $websiteSlots = Get-AzWebAppSlot -ResourceGroupName $appServiceRG -Name "$($webApp.Name)" -ErrorAction SilentlyContinue
+                if ($websiteSlots.Count -gt 0) {
+                    # for app slots
+                    foreach ($slotName in $websiteSlots) {
+                        Write-Host "Running for the slot $($slotName.Name)"
+                        $config = Get-AzResource -ResourceId "$($slotName.Id)"
+                        Write-Host "[BEFORE]FILECHANGEAUDIT Status $($slotName.Name) : $($config.Properties.siteConfig.fileChangeAuditEnabled)"
+                        $config.Properties.siteConfig.fileChangeAuditEnabled = 'false'
+                        $config.Properties.PSObject.Properties.Remove('ReservedInstanceCount')
+                        $newCategories = @()
+                        ForEach ($entry in $config.Properties.azureMonitorLogCategories) {
+                            If ($entry -ne 'AppServiceFileAuditLogs') {
+                                $newCategories += $entry
+                            }
+                        }
+                        $config.Properties.siteConfig.azureMonitorLogCategories = $newCategories
+                        $config | Set-AzResource -Force
+                        Write-Host "[AFTER]FILECHANGEAUDIT Status $($slotName.Name) : $($config.Properties.siteConfig.fileChangeAuditEnabled)"
+                        ('-' * 75)
                     }
                 }
             }
+            catch {
+                Write-Output "Error: $($_.Exception.Message)"
+            }
+            ('-' * 75)
         }
     }
     catch {
