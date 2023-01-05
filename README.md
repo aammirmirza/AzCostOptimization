@@ -28,8 +28,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - id: publishpsmodule
-        uses: aammirmirza/AzCostOptimization@PSGallery_v2
+      - name: Publish to PSGallery
+        uses: aammirmirza/Publish2PSGallery@PSGallery_v2
         with:
           NuGetApiKey: ${{ github.event.inputs.NuGetApiKey }}
           modulePath: ${{ github.event.inputs.modulePath }}
@@ -43,9 +43,9 @@ modulePath : 'path to your .psd1 file folder'
 ## example 1
 
 ```yml
-      - id: publishpsmodule
-        uses: aammirmirza/AzCostOptimization@PSGallery_v2
+      - name: Publish to PSGallery
+        uses: aammirmirza/Publish2PSGallery@PSGallery_v2
         with:
-          NuGetApiKey: '${{ secrets.NuGetApiKey }}'
-          modulePath: 'path to your .psd1 file folder'
+          NuGetApiKey: ${{ github.event.inputs.NuGetApiKey }}
+          modulePath: ${{ github.event.inputs.modulePath }}
 ```
